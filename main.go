@@ -32,7 +32,6 @@ func (g *Game) Update() error {
 	mx, my := ebiten.CursorPosition()
 
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
-		fmt.Printf("Mouse is pressed at (%d, %d)\n", mx, my)
 		gridX := convertGlobalToGrid(mx)
 		gridY := convertGlobalToGrid(my)
 		gridArray[gridX][gridY] = true
