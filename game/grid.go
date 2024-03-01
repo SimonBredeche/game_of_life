@@ -1,24 +1,26 @@
 package game
 
 import (
+	"image/color"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
+	"github.com/simonbredeche/simonbredeche/manager"
 	"github.com/simonbredeche/simonbredeche/shared"
-	"image/color"
 )
 
-func DrawGrid(gridSize int, tileSize *int, gridArray *[][]bool, screen *ebiten.Image) {
+func DrawGrid(gridSize int, tileSize *int, gameManager *manager.GameManager, screen *ebiten.Image) {
 	for x := 0; x < gridSize; x++ {
 		for y := 0; y < gridSize; y++ {
 			vector.StrokeRect(screen, float32(x**tileSize), shared.OFFSET_Y+float32(y**tileSize), float32(*tileSize), float32(*tileSize), 1, color.RGBA{255, 255, 255, 255}, false)
-			if (*gridArray)[x][y] {
+			if gameManager.GridArray[x][y] {
 				vector.DrawFilledRect(screen, float32(x**tileSize), shared.OFFSET_Y+float32(y**tileSize), float32(*tileSize), float32(*tileSize), color.RGBA{255, 255, 255, 255}, false)
 			}
 		}
 	}
 }
 
-func InitGrids(gridSize *int, tempGrid *[][]bool, gridArray *[][]bool) {
+func InitGrids(gridSize *int, gameManager *manager.GameManager) {
 
 	var newGrid = make([][]bool, *gridSize)
 	var newTempGrid = make([][]bool, *gridSize)
@@ -32,14 +34,14 @@ func InitGrids(gridSize *int, tempGrid *[][]bool, gridArray *[][]bool) {
 		}
 	}
 
-	*gridArray = newGrid
-	*tempGrid = newTempGrid
+	gameManager.GridArray = newGrid
+	gameManager.TempGrid = newTempGrid
 }
 
-func UpdateGrid(gameStarted *bool, currentGeneration *int, tempGrid *[][]bool, gridArray *[][]bool) {
+func UpdateGrid(gameStarted *bool, currentGeneration *int, gameManager *manager.GameManager) {
 	for x := 0; x < shared.GridSize; x++ {
 		for y := 0; y < shared.GridSize; y++ {
-			(*tempGrid)[x][y] = false
+			gameManager.TempGrid[x][y] = false
 		}
 	}
 
@@ -47,45 +49,45 @@ func UpdateGrid(gameStarted *bool, currentGeneration *int, tempGrid *[][]bool, g
 		*currentGeneration++
 		for x := 0; x < shared.GridSize; x++ {
 			for y := 0; y < shared.GridSize; y++ {
-				CheckCell(x, y, tempGrid, gridArray)
+				CheckCell(x, y, gameManager)
 			}
 		}
-		GridNextState(tempGrid, gridArray)
+		GridNextState(gameManager)
 	}
 }
 
 // Copie la grille temportaite dans la grille principale
-func GridNextState(tempGrid *[][]bool, gridArray *[][]bool) {
+func GridNextState(gameManager *manager.GameManager) {
 	for x := 0; x < shared.GridSize; x++ {
 		for y := 0; y < shared.GridSize; y++ {
-			(*gridArray)[x][y] = (*tempGrid)[x][y]
+			gameManager.GridArray[x][y] = gameManager.TempGrid[x][y]
 		}
 	}
 }
 
 // Vérifie si une cellule doit être vivante ou morte
-func CheckCell(posX int, posY int, tempGrid *[][]bool, gridArray *[][]bool) {
+func CheckCell(posX int, posY int, gameManager *manager.GameManager) {
 	alive := 0
 	for i := posX - 1; i <= posX+1; i++ {
 		for j := posY - 1; j <= posY+1; j++ {
 			if IsInBoundCoordinates(i, j) && !(i == posX && j == posY) {
-				if (*gridArray)[i][j] {
+				if gameManager.GridArray[i][j] {
 					alive++
 				}
 			}
 		}
 	}
-	if !(*gridArray)[posX][posY] {
+	if !gameManager.GridArray[posX][posY] {
 		if alive == 3 {
-			(*tempGrid)[posX][posY] = true
+			gameManager.TempGrid[posX][posY] = true
 		} else {
-			(*tempGrid)[posX][posY] = false
+			gameManager.TempGrid[posX][posY] = false
 		}
-	} else if (*gridArray)[posX][posY] {
+	} else if (gameManager.GridArray)[posX][posY] {
 		if alive == 2 || alive == 3 {
-			(*tempGrid)[posX][posY] = true
+			gameManager.TempGrid[posX][posY] = true
 		} else {
-			(*tempGrid)[posX][posY] = false
+			gameManager.TempGrid[posX][posY] = false
 		}
 	}
 }

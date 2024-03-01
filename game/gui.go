@@ -1,14 +1,16 @@
 package game
 
 import (
+	"image/color"
+	"strconv"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	"github.com/simonbredeche/simonbredeche/export"
+	"github.com/simonbredeche/simonbredeche/manager"
 	"github.com/simonbredeche/simonbredeche/shared"
-	"image/color"
-	"strconv"
 )
 
 const (
@@ -107,7 +109,7 @@ func DrawGUI(timeTick int64, currentGeneration *int, screen *ebiten.Image) {
 	ebitenutil.DebugPrintAt(screen, "ZOOM MINUS", zoomMinusX, 10)
 }
 
-func updateGui(timeTick *int64, gameStarted *bool, gridSize *int, tileSize *int, tempGrid *[][]bool, gridArray *[][]bool) {
+func updateGui(timeTick *int64, gameStarted *bool, gridSize *int, tileSize *int, gameManager *manager.GameManager) {
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 		mx, my := ebiten.CursorPosition()
 
@@ -117,11 +119,11 @@ func updateGui(timeTick *int64, gameStarted *bool, gridSize *int, tileSize *int,
 		}
 		//Export button
 		if mx >= exportRectX && mx <= exportRectX+exportRectWidth && my >= exportRectY && my <= exportRectY+exportRectHeight {
-			export.ExportGrid(gridArray)
+			export.ExportGrid(&gameManager.GridArray)
 		}
 		//Load button
 		if mx >= loadRectX && mx <= loadRectX+loadRectWidth && my >= loadRectY && my <= loadRectY+loadRectHeight {
-			export.LoadFromFile(gridArray)
+			export.LoadFromFile(&gameManager.GridArray)
 		}
 		//Plus tick
 		if mx >= rectPlusX && mx <= rectPlusX+rectPlusWidth && my >= rectPlusY && my <= rectPlusY+rectPlusHeight {
@@ -135,34 +137,34 @@ func updateGui(timeTick *int64, gameStarted *bool, gridSize *int, tileSize *int,
 		if mx >= zoomPlusX && mx <= zoomPlusX+zoomPlusWidth && my >= zoomPlusY && my <= zoomPlusY+zoomPlusHeight {
 			*gridSize = *gridSize / 2
 			*tileSize = *tileSize * 2
-			InitGrids(gridSize, tempGrid, gridArray)
+			InitGrids(gridSize, gameManager)
 		}
 		//Zoom minus
 		if mx >= zoomMinusX && mx <= zoomMinusX+zoomMinusWidth && my >= zoomMinusY && my <= zoomMinusY+zoomMinusHeight {
 			*gridSize = *gridSize * 2
 			*tileSize = *tileSize / 2
-			InitGrids(gridSize, tempGrid, gridArray)
+			InitGrids(gridSize, gameManager)
 		}
 	}
 }
 
 // Action qui s'execute quand on clique sur une cellule
-func DetectInput(timeTick *int64, gameStarted *bool, tileSize *int, tempGrid *[][]bool, gridArray *[][]bool) {
+func DetectInput(timeTick *int64, gameStarted *bool, tileSize *int, gameManager *manager.GameManager) {
 	mx, my := ebiten.CursorPosition()
 
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 		gridX := ConvertGlobalToGrid(mx, tileSize)
 		gridY := ConvertGlobalToGrid(my-shared.OFFSET_Y, tileSize)
 		if IsInBoundCoordinates(gridX, gridY) {
-			(*gridArray)[gridX][gridY] = true
+			gameManager.GridArray[gridX][gridY] = true
 		}
 	}
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonRight) {
 		gridX := ConvertGlobalToGrid(mx, tileSize)
 		gridY := ConvertGlobalToGrid(my-shared.OFFSET_Y, tileSize)
 		if IsInBoundCoordinates(gridX, gridY) {
-			(*gridArray)[gridX][gridY] = false
+			gameManager.GridArray[gridX][gridY] = false
 		}
 	}
-	updateGui(timeTick, gameStarted, &shared.GridSize, tileSize, tempGrid, gridArray)
+	updateGui(timeTick, gameStarted, &shared.GridSize, tileSize, gameManager)
 }
