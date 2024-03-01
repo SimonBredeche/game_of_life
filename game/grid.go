@@ -67,6 +67,23 @@ func GridNextState(gameState *manager.GameState, gridManager *manager.GridManage
 
 // Vérifie si une cellule doit être vivante ou morte
 func CheckCell(posX int, posY int, gridManager *manager.GridManager, gameState *manager.GameState) {
+	alive := countAliveCell(posX, posY, gridManager, gameState)
+	if !gridManager.GridArray[posX][posY] {
+		if alive == 3 {
+			gridManager.TempGrid[posX][posY] = true
+		} else {
+			gridManager.TempGrid[posX][posY] = false
+		}
+	} else {
+		if alive == 2 || alive == 3 {
+			gridManager.TempGrid[posX][posY] = true
+		} else {
+			gridManager.TempGrid[posX][posY] = false
+		}
+	}
+}
+
+func countAliveCell(posX int, posY int, gridManager *manager.GridManager, gameState *manager.GameState) int {
 	alive := 0
 	for i := posX - 1; i <= posX+1; i++ {
 		for j := posY - 1; j <= posY+1; j++ {
@@ -77,19 +94,7 @@ func CheckCell(posX int, posY int, gridManager *manager.GridManager, gameState *
 			}
 		}
 	}
-	if !gridManager.GridArray[posX][posY] {
-		if alive == 3 {
-			gridManager.TempGrid[posX][posY] = true
-		} else {
-			gridManager.TempGrid[posX][posY] = false
-		}
-	} else if (gridManager.GridArray)[posX][posY] {
-		if alive == 2 || alive == 3 {
-			gridManager.TempGrid[posX][posY] = true
-		} else {
-			gridManager.TempGrid[posX][posY] = false
-		}
-	}
+	return alive
 }
 
 func IsInBoundCoordinates(x int, y int, gridSize int) bool {
