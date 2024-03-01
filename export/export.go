@@ -2,12 +2,13 @@ package export
 
 import (
 	"fmt"
-	"github.com/simonbredeche/simonbredeche/shared"
 	"io"
 	"os"
+
+	"github.com/simonbredeche/simonbredeche/manager"
 )
 
-func ExportGrid(gridArray *[][]bool) {
+func ExportGrid(gameState *manager.GameState, gridManager *manager.GridManager) {
 	file, err := os.Create("export.txt")
 	if err != nil {
 		fmt.Println("Error creating file:", err)
@@ -15,11 +16,11 @@ func ExportGrid(gridArray *[][]bool) {
 	}
 	defer file.Close()
 
-	for x := 0; x < shared.GridSize; x++ {
+	for x := 0; x < gameState.GridSize; x++ {
 
 		data := ""
-		for y := 0; y < shared.GridSize; y++ {
-			if (*gridArray)[x][y] {
+		for y := 0; y < gameState.GridSize; y++ {
+			if gridManager.GridArray[x][y] {
 				data += "A"
 			} else {
 				data += "D"
@@ -37,7 +38,7 @@ func ExportGrid(gridArray *[][]bool) {
 	fmt.Println("Data has been written to the file.")
 }
 
-func LoadFromFile(gridArray *[][]bool) {
+func LoadFromFile(gameState *manager.GameState, gridManager *manager.GridManager) {
 	filePath := "export.txt"
 
 	file, err := os.Open(filePath)
@@ -64,12 +65,12 @@ func LoadFromFile(gridArray *[][]bool) {
 
 	fileContent := string(content)
 	fileIndex := 0
-	for i := 0; i < shared.GridSize; i++ {
-		for j := 0; j < shared.GridSize; j++ {
+	for i := 0; i < gameState.GridSize; i++ {
+		for j := 0; j < gameState.GridSize; j++ {
 			if fileContent[fileIndex] == 'A' {
-				(*gridArray)[i][j] = true
+				gridManager.GridArray[i][j] = true
 			} else {
-				(*gridArray)[i][j] = false
+				gridManager.GridArray[i][j] = false
 			}
 			fileIndex++
 		}

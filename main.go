@@ -11,12 +11,9 @@ import (
 	"github.com/simonbredeche/simonbredeche/game"
 )
 
-var gameManager *manager.GameManager
+var gridManager *manager.GridManager
 
-var gameStarted = false
-var currentGeneration = 0
-var tileSize = 16
-var timeTick = int64(20)
+var gameState *manager.GameState
 
 var (
 	lastUpdateTime time.Time
@@ -31,9 +28,9 @@ func (g *Game) Update() error {
 	deltaTime := currentTime.Sub(lastUpdateTime).Milliseconds()
 	lastUpdateTime = currentTime
 	currentTick += deltaTime
-	game.DetectInput(&timeTick, &gameStarted, &tileSize, gameManager)
-	if currentTick >= timeTick {
-		game.UpdateGrid(&gameStarted, &currentGeneration, gameManager)
+	game.DetectInput(gameState, gridManager)
+	if currentTick >= gameState.TimeTick {
+		game.UpdateGrid(gameState, gridManager)
 		currentTick = 0
 	}
 	return nil
@@ -41,8 +38,8 @@ func (g *Game) Update() error {
 
 // Dessine la grille
 func (g *Game) Draw(screen *ebiten.Image) {
-	game.DrawGrid(shared.GridSize, &tileSize, gameManager, screen)
-	game.DrawGUI(timeTick, &currentGeneration, screen)
+	game.DrawGrid(gameState, gridManager, screen)
+	game.DrawGUI(gameState, screen)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
@@ -50,8 +47,14 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 }
 
 func main() {
-	gameManager = &manager.GameManager{}
-	game.InitGrids(&shared.GridSize, gameManager)
+	gridManager = &manager.GridManager{}
+	gameState = &manager.GameState{}
+	gameState.CurrentGeneration = 0
+	gameState.GameStarted = false
+	gameState.TileSize = 16
+	gameState.TimeTick = int64(20)
+	gameState.GridSize = 80
+	game.InitGrids(gameState, gridManager)
 	ebiten.SetWindowSize(shared.SCREEN_WIDTH, shared.SCREEN_HEIGHT)
 	ebiten.SetWindowTitle("Game of life")
 	if err := ebiten.RunGame(&Game{}); err != nil {

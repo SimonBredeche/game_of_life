@@ -1,6 +1,6 @@
 package manager
 
-type GameManager struct {
+type GridManager struct {
 	TempGrid  [][]bool
 	GridArray [][]bool
 }

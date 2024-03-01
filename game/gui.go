@@ -13,158 +13,164 @@ import (
 	"github.com/simonbredeche/simonbredeche/shared"
 )
 
-const (
-	statDisplayWidth  = 150
-	statDisplayHeight = 80
-	statDisplayX      = rectMinusX + rectMinusWidth + 10
-	statDisplayY      = 10
-)
+type Rect struct {
+	x      int
+	y      int
+	width  int
+	height int
+}
 
-const (
-	rectMinusWidth  = 80
-	rectMinusHeight = 80
-	rectMinusX      = rectPlusX + rectPlusWidth + 10
-	rectMinusY      = 10
-)
+// STAT BUTTON DIMENSION
+var statRect = &Rect{
+	x:      rectMinus.x + rectMinus.width + 10,
+	y:      10,
+	width:  150,
+	height: 80,
+}
 
-const (
-	rectPlusWidth  = 80
-	rectPlusHeight = 80
-	rectPlusX      = exportRectX + exportRectWidth + 10
-	rectPlusY      = 10
-)
+// TICK MINUS BUTTON DIMENSION
+var rectMinus = &Rect{
+	x:      rectPlus.x + rectPlus.width + 10,
+	y:      10,
+	width:  80,
+	height: 80,
+}
 
-const (
-	exportRectX      = 10
-	exportRectY      = 10
-	exportRectWidth  = 100
-	exportRectHeight = 80
-)
+// TICK PLUS BUTTON DIMENSION
+var rectPlus = &Rect{
+	x:      rectExport.x + rectExport.width + 10,
+	y:      10,
+	width:  80,
+	height: 80,
+}
 
-const (
-	loadRectWidth  = 100
-	loadRectHeight = 80
-	loadRectX      = shared.SCREEN_WIDTH - loadRectWidth - 10
-	loadRectY      = 10
-)
+// EXPORT BUTTON DIMENSION
+var rectExport = &Rect{
+	x:      10,
+	y:      10,
+	width:  100,
+	height: 80,
+}
 
-const (
-	zoomPlusWidth  = 80
-	zoomPlusHeight = 80
-	zoomPlusX      = rectStartX + rectStartWidth + 10
-	zoomPlusY      = 10
-)
+// LOAD BUTTON DIMENSION
+var loadRect = &Rect{
+	x:      shared.SCREEN_WIDTH - 100 - 10,
+	y:      10,
+	width:  100,
+	height: 80,
+}
 
-const (
-	zoomMinusWidth  = 80
-	zoomMinusHeight = 80
-	zoomMinusX      = zoomPlusX + zoomPlusWidth + 10
-	zoomMinusY      = 10
-)
+// ZOOM PLUS BUTTON DIMENSION
+var zoomPlusRect = &Rect{
+	x:      rectStart.x + rectStart.width + 10,
+	y:      10,
+	width:  80,
+	height: 80,
+}
 
-const (
-	rectStartX      = shared.SCREEN_WIDTH/2 - buttonStartSize/2
-	rectStartY      = 10
-	rectStartWidth  = buttonStartSize
-	rectStartHeight = 80
-)
+// ZOOM MINUS BUTTON DIMENSION
+var zoomMinusRect = &Rect{
+	x:      zoomPlusRect.x + zoomPlusRect.width + 10,
+	y:      10,
+	width:  80,
+	height: 80,
+}
+
+// START BUTTON DIMENSION
+var rectStart = &Rect{
+	x:      shared.SCREEN_WIDTH/2 - buttonStartSize/2,
+	y:      10,
+	width:  buttonStartSize,
+	height: 80,
+}
 
 const buttonStartSize = 200
 
-func DrawGUI(timeTick int64, currentGeneration *int, screen *ebiten.Image) {
+func DrawGUI(gameState *manager.GameState, screen *ebiten.Image) {
 
-	buttonColor := color.RGBA{34, 139, 34, 255}
+	drawButton(rectStart, "START", screen)
 
-	vector.DrawFilledRect(screen, float32(rectStartX), rectStartY, float32(buttonStartSize), rectStartHeight, buttonColor, false)
+	drawButton(rectExport, "EXPORT", screen)
 
-	ebitenutil.DebugPrintAt(screen, "START", rectStartX, 10)
+	drawButton(loadRect, "LOAD", screen)
 
-	vector.DrawFilledRect(screen, float32(exportRectX), exportRectY, float32(exportRectWidth), exportRectHeight, buttonColor, false)
+	drawButton(rectPlus, "PLUS TICK", screen)
 
-	ebitenutil.DebugPrintAt(screen, "EXPORT", exportRectX, 10)
+	drawButton(rectMinus, "MINUS TICK", screen)
 
-	vector.DrawFilledRect(screen, float32(loadRectX), loadRectY, float32(loadRectWidth), loadRectHeight, buttonColor, false)
+	drawButton(statRect, "TICK SPEED : "+strconv.Itoa(int(gameState.TimeTick))+"\n"+"GENERATION : "+strconv.Itoa(gameState.CurrentGeneration), screen)
 
-	ebitenutil.DebugPrintAt(screen, "LOAD", loadRectX, 10)
+	drawButton(zoomPlusRect, "ZOOM PLUS", screen)
 
-	vector.DrawFilledRect(screen, float32(rectPlusX), rectPlusY, float32(rectPlusWidth), rectPlusHeight, buttonColor, false)
-
-	ebitenutil.DebugPrintAt(screen, "PLUS TICK", rectPlusX, 10)
-
-	vector.DrawFilledRect(screen, float32(rectMinusX), rectMinusY, float32(rectMinusWidth), rectMinusHeight, buttonColor, false)
-
-	ebitenutil.DebugPrintAt(screen, "MINUS TICK", rectMinusX, 10)
-
-	vector.DrawFilledRect(screen, float32(statDisplayX), statDisplayY, float32(statDisplayWidth), statDisplayHeight, buttonColor, false)
-
-	ebitenutil.DebugPrintAt(screen, "TICK SPEED : "+strconv.Itoa(int(timeTick)), statDisplayX, 10)
-	ebitenutil.DebugPrintAt(screen, "GENERATION : "+strconv.Itoa(*currentGeneration), statDisplayX, 30)
-
-	vector.DrawFilledRect(screen, float32(zoomPlusX), zoomPlusY, float32(zoomPlusWidth), zoomPlusHeight, buttonColor, false)
-
-	ebitenutil.DebugPrintAt(screen, "ZOOM PLUS", zoomPlusX, 10)
-
-	vector.DrawFilledRect(screen, float32(zoomMinusX), zoomMinusY, float32(zoomMinusWidth), zoomMinusHeight, buttonColor, false)
-
-	ebitenutil.DebugPrintAt(screen, "ZOOM MINUS", zoomMinusX, 10)
+	drawButton(zoomMinusRect, "ZOOM MINUS", screen)
 }
 
-func updateGui(timeTick *int64, gameStarted *bool, gridSize *int, tileSize *int, gameManager *manager.GameManager) {
+func drawButton(rec *Rect, title string, screen *ebiten.Image) {
+	buttonColor := color.RGBA{34, 139, 34, 255}
+	vector.DrawFilledRect(screen, float32(rec.x), float32(rec.y), float32(rec.width), float32(rec.height), buttonColor, false)
+	ebitenutil.DebugPrintAt(screen, title, rec.x, 10)
+}
+
+func checkCursorInRectangle(rec *Rect, mx int, my int) bool {
+	return mx >= rec.x && mx <= rec.x+rec.width && my >= rec.y && my <= rec.y+rec.height
+}
+
+func updateGui(gameState *manager.GameState, gridManager *manager.GridManager) {
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 		mx, my := ebiten.CursorPosition()
 
 		//start button
-		if mx >= rectStartX && mx <= rectStartX+rectStartWidth && my >= rectStartY && my <= rectStartY+rectStartHeight {
-			*gameStarted = !*gameStarted
+		if checkCursorInRectangle(rectStart, mx, my) {
+			gameState.GameStarted = !gameState.GameStarted
 		}
 		//Export button
-		if mx >= exportRectX && mx <= exportRectX+exportRectWidth && my >= exportRectY && my <= exportRectY+exportRectHeight {
-			export.ExportGrid(&gameManager.GridArray)
+		if checkCursorInRectangle(rectExport, mx, my) {
+			export.ExportGrid(gameState, gridManager)
 		}
 		//Load button
-		if mx >= loadRectX && mx <= loadRectX+loadRectWidth && my >= loadRectY && my <= loadRectY+loadRectHeight {
-			export.LoadFromFile(&gameManager.GridArray)
+		if checkCursorInRectangle(loadRect, mx, my) {
+			export.LoadFromFile(gameState, gridManager)
 		}
 		//Plus tick
-		if mx >= rectPlusX && mx <= rectPlusX+rectPlusWidth && my >= rectPlusY && my <= rectPlusY+rectPlusHeight {
-			*timeTick += 1
+		if checkCursorInRectangle(rectPlus, mx, my) {
+			gameState.TimeTick += 1
 		}
 		//Minus tick
-		if mx >= rectMinusX && mx <= rectMinusX+rectMinusWidth && my >= rectMinusY && my <= rectMinusY+rectMinusHeight {
-			*timeTick -= 1
+		if checkCursorInRectangle(rectMinus, mx, my) {
+			gameState.TimeTick -= 1
 		}
 		//Zoom plus
-		if mx >= zoomPlusX && mx <= zoomPlusX+zoomPlusWidth && my >= zoomPlusY && my <= zoomPlusY+zoomPlusHeight {
-			*gridSize = *gridSize / 2
-			*tileSize = *tileSize * 2
-			InitGrids(gridSize, gameManager)
+		if checkCursorInRectangle(zoomPlusRect, mx, my) {
+			gameState.GridSize = gameState.GridSize / 2
+			gameState.TileSize = gameState.TileSize * 2
+			InitGrids(gameState, gridManager)
 		}
 		//Zoom minus
-		if mx >= zoomMinusX && mx <= zoomMinusX+zoomMinusWidth && my >= zoomMinusY && my <= zoomMinusY+zoomMinusHeight {
-			*gridSize = *gridSize * 2
-			*tileSize = *tileSize / 2
-			InitGrids(gridSize, gameManager)
+		if checkCursorInRectangle(zoomMinusRect, mx, my) {
+			gameState.GridSize = gameState.GridSize * 2
+			gameState.TileSize = gameState.TileSize / 2
+			InitGrids(gameState, gridManager)
 		}
 	}
 }
 
 // Action qui s'execute quand on clique sur une cellule
-func DetectInput(timeTick *int64, gameStarted *bool, tileSize *int, gameManager *manager.GameManager) {
+func DetectInput(gameState *manager.GameState, gridManager *manager.GridManager) {
 	mx, my := ebiten.CursorPosition()
 
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
-		gridX := ConvertGlobalToGrid(mx, tileSize)
-		gridY := ConvertGlobalToGrid(my-shared.OFFSET_Y, tileSize)
-		if IsInBoundCoordinates(gridX, gridY) {
-			gameManager.GridArray[gridX][gridY] = true
+		gridX := ConvertGlobalToGrid(mx, &gameState.TileSize)
+		gridY := ConvertGlobalToGrid(my-shared.OFFSET_Y, &gameState.TileSize)
+		if IsInBoundCoordinates(gridX, gridY, gameState.GridSize) {
+			gridManager.GridArray[gridX][gridY] = true
 		}
 	}
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonRight) {
-		gridX := ConvertGlobalToGrid(mx, tileSize)
-		gridY := ConvertGlobalToGrid(my-shared.OFFSET_Y, tileSize)
-		if IsInBoundCoordinates(gridX, gridY) {
-			gameManager.GridArray[gridX][gridY] = false
+		gridX := ConvertGlobalToGrid(mx, &gameState.TileSize)
+		gridY := ConvertGlobalToGrid(my-shared.OFFSET_Y, &gameState.TileSize)
+		if IsInBoundCoordinates(gridX, gridY, gameState.GridSize) {
+			gridManager.GridArray[gridX][gridY] = false
 		}
 	}
-	updateGui(timeTick, gameStarted, &shared.GridSize, tileSize, gameManager)
+	updateGui(gameState, gridManager)
 }
