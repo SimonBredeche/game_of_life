@@ -44,16 +44,19 @@ func UpdateGrid(gameState *manager.GameState, gridManager *manager.GridManager) 
 			gridManager.TempGrid[x][y] = false
 		}
 	}
-
 	if gameState.GameStarted {
-		gameState.CurrentGeneration++
-		for x := 0; x < gameState.GridSize; x++ {
-			for y := 0; y < gameState.GridSize; y++ {
-				CheckCell(x, y, gridManager, gameState)
-			}
-		}
-		GridNextState(gameState, gridManager)
+		emulateLife(gameState, gridManager)
 	}
+}
+
+func emulateLife(gameState *manager.GameState, gridManager *manager.GridManager) {
+	gameState.CurrentGeneration++
+	for x := 0; x < gameState.GridSize; x++ {
+		for y := 0; y < gameState.GridSize; y++ {
+			checkCell(x, y, gridManager, gameState)
+		}
+	}
+	GridNextState(gameState, gridManager)
 }
 
 // Copie la grille temportaite dans la grille principale
@@ -66,20 +69,28 @@ func GridNextState(gameState *manager.GameState, gridManager *manager.GridManage
 }
 
 // Vérifie si une cellule doit être vivante ou morte
-func CheckCell(posX int, posY int, gridManager *manager.GridManager, gameState *manager.GameState) {
+func checkCell(posX int, posY int, gridManager *manager.GridManager, gameState *manager.GameState) {
 	alive := countAliveCell(posX, posY, gridManager, gameState)
 	if !gridManager.GridArray[posX][posY] {
-		if alive == 3 {
-			gridManager.TempGrid[posX][posY] = true
-		} else {
-			gridManager.TempGrid[posX][posY] = false
-		}
+		deadCellUpdate(alive, posX, posY, gridManager)
 	} else {
-		if alive == 2 || alive == 3 {
-			gridManager.TempGrid[posX][posY] = true
-		} else {
-			gridManager.TempGrid[posX][posY] = false
-		}
+		aliveCellUpdate(alive, posX, posY, gridManager)
+	}
+}
+
+func deadCellUpdate(alive int, posX int, posY int, gridManager *manager.GridManager) {
+	if alive == 3 {
+		gridManager.TempGrid[posX][posY] = true
+	} else {
+		gridManager.TempGrid[posX][posY] = false
+	}
+}
+
+func aliveCellUpdate(alive int, posX int, posY int, gridManager *manager.GridManager) {
+	if alive == 2 || alive == 3 {
+		gridManager.TempGrid[posX][posY] = true
+	} else {
+		gridManager.TempGrid[posX][posY] = false
 	}
 }
 
