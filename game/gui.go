@@ -76,6 +76,14 @@ var zoomMinusRect = &Rect{
 	height: 80,
 }
 
+// CLEAR BUTTON DIMENSION
+var clearRect = &Rect{
+	x:      zoomMinusRect.x + zoomMinusRect.width + 10,
+	y:      10,
+	width:  80,
+	height: 80,
+}
+
 // START BUTTON DIMENSION
 var rectStart = &Rect{
 	x:      shared.SCREEN_WIDTH/2 - buttonStartSize/2,
@@ -103,6 +111,8 @@ func DrawGUI(gameState *manager.GameState, screen *ebiten.Image) {
 	drawButton(zoomPlusRect, "ZOOM PLUS", screen)
 
 	drawButton(zoomMinusRect, "ZOOM MINUS", screen)
+
+	drawButton(clearRect, "CLEAR", screen)
 }
 
 func drawButton(rec *Rect, title string, screen *ebiten.Image) {
@@ -149,6 +159,10 @@ func updateGui(gameState *manager.GameState, gridManager *manager.GridManager) {
 		if checkCursorInRectangle(zoomMinusRect, mx, my) {
 			gameState.GridSize = gameState.GridSize * 2
 			gameState.TileSize = gameState.TileSize / 2
+			InitGrids(gameState, gridManager)
+		}
+		//Clear rect
+		if checkCursorInRectangle(clearRect, mx, my) {
 			InitGrids(gameState, gridManager)
 		}
 	}
